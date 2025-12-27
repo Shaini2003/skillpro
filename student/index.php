@@ -54,27 +54,37 @@ include '../includes/header.php';
 ?>
 
 <div class="container-fluid mt-4 mb-5">
-    <div class="row">
-        <!-- Welcome Section -->
-        <div class="col-12 mb-4">
-            <div class="card bg-gradient text-white shadow-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="card-body p-4">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h3 class="mb-2">Welcome back, <?= htmlspecialchars($student['full_name']) ?>! 👋</h3>
-                            <p class="mb-0 opacity-75">
-                                <i class="bi bi-building"></i> <?= htmlspecialchars($student['branch_name']) ?> Branch
-                            </p>
-                        </div>
-                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                            <small class="opacity-75">Member since</small>
-                            <h6 class="mb-0"><?= date('F Y', strtotime($student['created_at'])) ?></h6>
-                        </div>
+    <div class="col-12 mb-4">
+        <div class="card shadow-lg border-0"
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff;">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+
+                    <!-- Left -->
+                    <div class="col-md-8">
+                        <h3 class="mb-2 text-white fw-bold">
+                            Welcome back, <?= htmlspecialchars($student['full_name']) ?> 👋
+                        </h3>
+
+                        <p class="mb-0 text-white-50">
+                            <i class="bi bi-building"></i>
+                            <?= htmlspecialchars($student['branch_name'] ?? 'Main') ?>
+                        </p>
                     </div>
+
+                    <!-- Right -->
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <small class="text-white-50">Member since</small>
+                        <h6 class="mb-0 text-white fw-semibold">
+                            <?= date('F Y', strtotime($student['created_at'])) ?>
+                        </h6>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
@@ -162,70 +172,70 @@ include '../includes/header.php';
                 </div>
                 <div class="card-body">
                     <?php if (empty($recent_enrollments)): ?>
-                    <div class="text-center py-5">
-                        <i class="bi bi-inbox fs-1 text-muted"></i>
-                        <p class="text-muted mt-3 mb-3">You haven't enrolled in any courses yet</p>
-                        <a href="../courses.php" class="btn btn-primary">Browse Courses</a>
-                    </div>
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox fs-1 text-muted"></i>
+                            <p class="text-muted mt-3 mb-3">You haven't enrolled in any courses yet</p>
+                            <a href="../courses.php" class="btn btn-primary">Browse Courses</a>
+                        </div>
                     <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Course</th>
-                                    <th>Category</th>
-                                    <th>Mode</th>
-                                    <th>Status</th>
-                                    <th>Payment</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($recent_enrollments as $enrollment): 
-                                    $status_colors = [
-                                        'pending' => 'warning',
-                                        'approved' => 'success',
-                                        'rejected' => 'danger',
-                                        'completed' => 'info'
-                                    ];
-                                    $payment_colors = [
-                                        'pending' => 'warning',
-                                        'partial' => 'info',
-                                        'paid' => 'success'
-                                    ];
-                                ?>
-                                <tr>
-                                    <td>
-                                        <strong><?= htmlspecialchars($enrollment['course_name']) ?></strong><br>
-                                        <small class="text-muted"><?= htmlspecialchars($enrollment['course_code']) ?></small>
-                                    </td>
-                                    <td><?= htmlspecialchars($enrollment['category_name']) ?></td>
-                                    <td>
-                                        <span class="badge bg-secondary">
-                                            <?= ucfirst($enrollment['mode']) ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<?= $status_colors[$enrollment['status']] ?>">
-                                            <?= ucfirst($enrollment['status']) ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<?= $payment_colors[$enrollment['payment_status']] ?>">
-                                            <?= ucfirst($enrollment['payment_status']) ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="../course_details.php?id=<?= $enrollment['course_id'] ?>" 
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Category</th>
+                                        <th>Mode</th>
+                                        <th>Status</th>
+                                        <th>Payment</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($recent_enrollments as $enrollment):
+                                        $status_colors = [
+                                            'pending' => 'warning',
+                                            'approved' => 'success',
+                                            'rejected' => 'danger',
+                                            'completed' => 'info'
+                                        ];
+                                        $payment_colors = [
+                                            'pending' => 'warning',
+                                            'partial' => 'info',
+                                            'paid' => 'success'
+                                        ];
+                                    ?>
+                                        <tr>
+                                            <td>
+                                                <strong><?= htmlspecialchars($enrollment['course_name']) ?></strong><br>
+                                                <small class="text-muted"><?= htmlspecialchars($enrollment['course_code']) ?></small>
+                                            </td>
+                                            <td><?= htmlspecialchars($enrollment['category_name']) ?></td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    <?= ucfirst($enrollment['mode']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<?= $status_colors[$enrollment['status']] ?>">
+                                                    <?= ucfirst($enrollment['status']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<?= $payment_colors[$enrollment['payment_status']] ?>">
+                                                    <?= ucfirst($enrollment['payment_status']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="../course_details.php?id=<?= $enrollment['course_id'] ?>"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -279,26 +289,26 @@ include '../includes/header.php';
                 </div>
                 <div class="card-body" style="max-height: 300px; overflow-y: auto;">
                     <?php if (empty($upcoming_events)): ?>
-                    <p class="text-muted text-center mb-0">No upcoming events</p>
+                        <p class="text-muted text-center mb-0">No upcoming events</p>
                     <?php else: ?>
-                    <?php foreach ($upcoming_events as $event): ?>
-                    <div class="event-item mb-3 pb-3 <?= $event !== end($upcoming_events) ? 'border-bottom' : '' ?>">
-                        <div class="d-flex">
-                            <div class="text-center me-3" style="min-width: 50px;">
-                                <div class="bg-success text-white rounded p-2">
-                                    <div class="fw-bold"><?= date('d', strtotime($event['event_date'])) ?></div>
-                                    <small><?= date('M', strtotime($event['event_date'])) ?></small>
+                        <?php foreach ($upcoming_events as $event): ?>
+                            <div class="event-item mb-3 pb-3 <?= $event !== end($upcoming_events) ? 'border-bottom' : '' ?>">
+                                <div class="d-flex">
+                                    <div class="text-center me-3" style="min-width: 50px;">
+                                        <div class="bg-success text-white rounded p-2">
+                                            <div class="fw-bold"><?= date('d', strtotime($event['event_date'])) ?></div>
+                                            <small><?= date('M', strtotime($event['event_date'])) ?></small>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1"><?= htmlspecialchars($event['event_title']) ?></h6>
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock"></i> <?= date('g:i A', strtotime($event['start_time'])) ?>
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1"><?= htmlspecialchars($event['event_title']) ?></h6>
-                                <small class="text-muted">
-                                    <i class="bi bi-clock"></i> <?= date('g:i A', strtotime($event['start_time'])) ?>
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
                 <div class="card-footer bg-white text-center border-top">
@@ -315,20 +325,20 @@ include '../includes/header.php';
                 </div>
                 <div class="card-body" style="max-height: 300px; overflow-y: auto;">
                     <?php if (empty($recent_notices)): ?>
-                    <p class="text-muted text-center mb-0">No notices available</p>
+                        <p class="text-muted text-center mb-0">No notices available</p>
                     <?php else: ?>
-                    <?php foreach ($recent_notices as $notice): ?>
-                    <div class="notice-item mb-3 pb-3 <?= $notice !== end($recent_notices) ? 'border-bottom' : '' ?>">
-                        <div class="d-flex justify-content-between mb-1">
-                            <h6 class="mb-0"><?= htmlspecialchars($notice['title']) ?></h6>
-                            <span class="badge bg-<?= $notice['priority'] == 'high' ? 'danger' : ($notice['priority'] == 'medium' ? 'warning' : 'secondary') ?>">
-                                <?= ucfirst($notice['priority']) ?>
-                            </span>
-                        </div>
-                        <small class="text-muted"><?= format_date($notice['publish_date']) ?></small>
-                        <p class="mb-0 mt-1 small"><?= substr(htmlspecialchars($notice['content']), 0, 100) ?>...</p>
-                    </div>
-                    <?php endforeach; ?>
+                        <?php foreach ($recent_notices as $notice): ?>
+                            <div class="notice-item mb-3 pb-3 <?= $notice !== end($recent_notices) ? 'border-bottom' : '' ?>">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <h6 class="mb-0"><?= htmlspecialchars($notice['title']) ?></h6>
+                                    <span class="badge bg-<?= $notice['priority'] == 'high' ? 'danger' : ($notice['priority'] == 'medium' ? 'warning' : 'secondary') ?>">
+                                        <?= ucfirst($notice['priority']) ?>
+                                    </span>
+                                </div>
+                                <small class="text-muted"><?= format_date($notice['publish_date']) ?></small>
+                                <p class="mb-0 mt-1 small"><?= substr(htmlspecialchars($notice['content']), 0, 100) ?>...</p>
+                            </div>
+                        <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
                 <div class="card-footer bg-white text-center border-top">
