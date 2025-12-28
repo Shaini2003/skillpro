@@ -104,7 +104,7 @@ include '../includes/header.php';
                                     <div class="row g-2 mb-3 mt-3">
                                         <div class="col-6">
                                             <small class="text-muted d-block">Instructor</small>
-                                            <span class="fw-semibold text-dark"><?= htmlspecialchars($course['instructor_name']) ?></span>
+                                            <span class="fw-semibold text-dark"><?= htmlspecialchars($course['instructor_name'] ?? 'Not Assigned') ?></span>
                                         </div>
                                         <div class="col-6">
                                             <small class="text-muted d-block">Mode</small>
@@ -156,7 +156,7 @@ include '../includes/header.php';
                                     </div>
                                     <small class="text-muted">
                                         Requested on: <?= format_datetime($course['enrollment_date']) ?> | 
-                                        Branch: <?= htmlspecialchars($course['branch_name']) ?>
+                                        Branch: <?= htmlspecialchars($course['branch_name'] ?? 'Main Branch') ?>
                                     </small>
                                 </div>
                                 <a href="../course_details.php?id=<?= $course['course_id'] ?>" class="btn btn-sm btn-outline-secondary">View Details</a>

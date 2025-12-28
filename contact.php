@@ -290,21 +290,27 @@ include 'includes/header.php';
     </div>
 
     <!-- Map Section (Optional) -->
-    <div class="row mt-5">
+   <div class="row mt-5">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="mb-3">
-                        <i class="bi bi-map-fill text-danger"></i> Find Us on Map
-                    </h5>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> 
-                        <strong>Colombo Branch (Main):</strong> 123 Galle Road, Colombo 03, Sri Lanka
+                <div class="card-body p-0">
+                    <div class="p-3 border-bottom bg-light rounded-top">
+                        <h5 class="mb-0">
+                            <i class="bi bi-geo-alt-fill text-danger"></i> Visit Our Main Campus
+                        </h5>
+                        <small class="text-muted">123 Galle Road, Colombo 03, Sri Lanka</small>
                     </div>
-                    <!-- You can integrate Google Maps here -->
-                    <div class="text-center text-muted py-5">
-                        <i class="bi bi-map fs-1"></i>
-                        <p class="mt-2">Map integration available</p>
+
+                    <div class="ratio ratio-21x9">
+                        <iframe 
+                            src="https://www.google.com/maps?q=123+Galle+Road,+Colombo+03,+Sri+Lanka&output=embed" 
+                            width="100%" 
+                            height="450" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
                     </div>
                 </div>
             </div>
