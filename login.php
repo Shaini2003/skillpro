@@ -91,7 +91,7 @@ include 'includes/header.php';
                 <small>
                     <strong>Demo Credentials:</strong><br>
                     Admin: admin / admin123<br>
-                    Instructor: instructor1 / admin123<br>
+                    Instructor: instructor1 / 123456<br>
                     Student: Register new account
                 </small>
             </div>
