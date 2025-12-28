@@ -53,13 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_instructor'])) {
                         $stmt = $db->prepare("UPDATE users SET username = ?, email = ?, full_name = ?, phone = ?, 
                                               branch_id = ?, password_hash = ?, status = ? WHERE user_id = ?");
                         $result = $stmt->execute([$username, $email, $full_name, $phone, $branch_id, 
-                                                   $password_hash, $status, $instructor_id]);
+                                                  $password_hash, $status, $instructor_id]);
                     } else {
                         // Update without changing password
                         $stmt = $db->prepare("UPDATE users SET username = ?, email = ?, full_name = ?, phone = ?, 
                                               branch_id = ?, status = ? WHERE user_id = ?");
                         $result = $stmt->execute([$username, $email, $full_name, $phone, $branch_id, 
-                                                   $status, $instructor_id]);
+                                                  $status, $instructor_id]);
                     }
                     
                     if ($result) {
@@ -169,6 +169,10 @@ $page_title = 'Manage Instructors - Admin Panel';
 include '../includes/header.php';
 ?>
 
+<style>
+    body.modal-open { overflow-y: scroll !important; padding-right: 0 !important; }
+</style>
+
 <div class="container-fluid mt-4 mb-5">
     <div class="row">
         <div class="col-12">
@@ -208,7 +212,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
             <div class="card border-success border-2">
@@ -239,7 +242,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Filters -->
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
             <form method="GET" class="row g-3">
@@ -279,7 +281,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Instructors Table -->
     <div class="card shadow-sm">
         <div class="card-header bg-white">
             <h5 class="mb-0">Instructors List (<?php echo count($instructors); ?> instructors)</h5>
@@ -334,7 +335,7 @@ include '../includes/header.php';
                                 </small>
                                 <?php endif; ?>
                             </td>
-                            <td><?php echo htmlspecialchars($instructor['branch_name']); ?></td>
+                            <td><?php echo htmlspecialchars($instructor['branch_name'] ?? 'N/A'); ?></td>
                             <td>
                                 <span class="badge bg-primary">
                                     <?php echo $instructor['course_count']; ?> Courses
@@ -362,83 +363,6 @@ include '../includes/header.php';
                                 </a>
                             </td>
                         </tr>
-
-                        <!-- Edit Modal for each instructor -->
-                        <div class="modal fade" id="editModal<?php echo $instructor['user_id']; ?>" tabindex="-1">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-primary text-white">
-                                        <h5 class="modal-title">Edit Instructor: <?php echo htmlspecialchars($instructor['full_name']); ?></h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <form method="POST">
-                                        <div class="modal-body">
-                                            <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
-                                            <input type="hidden" name="instructor_id" value="<?php echo $instructor['user_id']; ?>">
-                                            
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Username *</label>
-                                                    <input type="text" name="username" class="form-control" required 
-                                                           value="<?php echo htmlspecialchars($instructor['username']); ?>">
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Email *</label>
-                                                    <input type="email" name="email" class="form-control" required 
-                                                           value="<?php echo htmlspecialchars($instructor['email']); ?>">
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Full Name *</label>
-                                                    <input type="text" name="full_name" class="form-control" required 
-                                                           value="<?php echo htmlspecialchars($instructor['full_name']); ?>">
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Phone</label>
-                                                    <input type="tel" name="phone" class="form-control" 
-                                                           value="<?php echo htmlspecialchars($instructor['phone']); ?>">
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Branch *</label>
-                                                    <select name="branch_id" class="form-select" required>
-                                                        <?php foreach ($branches as $branch): ?>
-                                                        <option value="<?php echo $branch['branch_id']; ?>" 
-                                                                <?php echo $instructor['branch_id'] == $branch['branch_id'] ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($branch['branch_name']); ?>
-                                                        </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Status *</label>
-                                                    <select name="status" class="form-select" required>
-                                                        <option value="active" <?php echo $instructor['status'] == 'active' ? 'selected' : ''; ?>>Active</option>
-                                                        <option value="inactive" <?php echo $instructor['status'] == 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label class="form-label">New Password</label>
-                                                <input type="password" name="password" class="form-control">
-                                                <small class="text-muted">Leave blank to keep current password</small>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" name="save_instructor" class="btn btn-primary">
-                                                <i class="bi bi-save"></i> Update Instructor
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -448,7 +372,86 @@ include '../includes/header.php';
     </div>
 </div>
 
-<!-- Add Instructor Modal -->
+<?php if (!empty($instructors)): ?>
+    <?php foreach ($instructors as $instructor): ?>
+    <div class="modal fade" id="editModal<?php echo $instructor['user_id']; ?>" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Edit Instructor: <?php echo htmlspecialchars($instructor['full_name']); ?></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                        <input type="hidden" name="instructor_id" value="<?php echo $instructor['user_id']; ?>">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Username *</label>
+                                <input type="text" name="username" class="form-control" required 
+                                       value="<?php echo htmlspecialchars($instructor['username']); ?>">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email *</label>
+                                <input type="email" name="email" class="form-control" required 
+                                       value="<?php echo htmlspecialchars($instructor['email']); ?>">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" name="full_name" class="form-control" required 
+                                       value="<?php echo htmlspecialchars($instructor['full_name']); ?>">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" name="phone" class="form-control" 
+                                       value="<?php echo htmlspecialchars($instructor['phone'] ?? ''); ?>">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Branch *</label>
+                                <select name="branch_id" class="form-select" required>
+                                    <?php foreach ($branches as $branch): ?>
+                                    <option value="<?php echo $branch['branch_id']; ?>" 
+                                            <?php echo $instructor['branch_id'] == $branch['branch_id'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($branch['branch_name']); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Status *</label>
+                                <select name="status" class="form-select" required>
+                                    <option value="active" <?php echo $instructor['status'] == 'active' ? 'selected' : ''; ?>>Active</option>
+                                    <option value="inactive" <?php echo $instructor['status'] == 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="password" class="form-control">
+                            <small class="text-muted">Leave blank to keep current password</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="save_instructor" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Update Instructor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+<?php endif; ?>
+
 <div class="modal fade" id="instructorModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -516,7 +519,7 @@ include '../includes/header.php';
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="save_instructor" class="btn btn-info">
+                    <button type="submit" name="save_instructor" class="btn btn-info text-white">
                         <i class="bi bi-plus-circle"></i> Create Instructor
                     </button>
                 </div>
