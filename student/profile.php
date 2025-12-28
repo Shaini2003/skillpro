@@ -7,7 +7,7 @@ $db = Database::getInstance()->getConnection();
 $success = '';
 $errors = [];
 
-// Handle profile update
+// Handle profile update (Info + Photo)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     if (!verify_csrf_token($_POST['csrf_token'])) {
         $errors[] = 'Invalid request';
@@ -18,25 +18,62 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
         $branch_id = (int)$_POST['branch_id'];
         
         // Validation
-        if (strlen($full_name) < 3) {
-            $errors[] = 'Full name must be at least 3 characters';
-        }
+        if (strlen($full_name) < 3) $errors[] = 'Full name must be at least 3 characters';
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email address';
         
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email address';
-        }
-        
-        // Check if email exists for other users
+        // Check email uniqueness
         $stmt = $db->prepare("SELECT user_id FROM users WHERE email = ? AND user_id != ?");
         $stmt->execute([$email, $student_id]);
-        if ($stmt->fetch()) {
-            $errors[] = 'Email already in use';
-        }
+        if ($stmt->fetch()) $errors[] = 'Email already in use';
         
+        // Handle Photo Upload
+        $profile_image = null;
+        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
+            $allowed = ['jpg', 'jpeg', 'png'];
+            $filename = $_FILES['profile_image']['name'];
+            $filetype = pathinfo($filename, PATHINFO_EXTENSION);
+            $filesize = $_FILES['profile_image']['size'];
+
+            if (!in_array(strtolower($filetype), $allowed)) {
+                $errors[] = "Only JPG, JPEG, and PNG files are allowed.";
+            } elseif ($filesize > 2 * 1024 * 1024) { // 2MB Limit
+                $errors[] = "File size must be less than 2MB.";
+            } else {
+                // Create upload directory if not exists
+                $target_dir = "../uploads/profiles/";
+                if (!file_exists($target_dir)) mkdir($target_dir, 0777, true);
+
+                $new_filename = "user_" . $student_id . "_" . time() . "." . $filetype;
+                $target_file = $target_dir . $new_filename;
+
+                if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $target_file)) {
+                    $profile_image = "uploads/profiles/" . $new_filename;
+                } else {
+                    $errors[] = "Failed to upload image.";
+                }
+            }
+        }
+
         if (empty($errors)) {
-            $stmt = $db->prepare("UPDATE users SET full_name = ?, email = ?, phone = ?, branch_id = ? WHERE user_id = ?");
-            if ($stmt->execute([$full_name, $email, $phone, $branch_id, $student_id])) {
+            // Build Update Query
+            $sql = "UPDATE users SET full_name = ?, email = ?, phone = ?, branch_id = ?";
+            $params = [$full_name, $email, $phone, $branch_id];
+
+            // If new image uploaded, add to query
+            if ($profile_image) {
+                $sql .= ", profile_image = ?";
+                $params[] = $profile_image;
+            }
+
+            $sql .= " WHERE user_id = ?";
+            $params[] = $student_id;
+
+            $stmt = $db->prepare($sql);
+            if ($stmt->execute($params)) {
                 $_SESSION['full_name'] = $full_name;
+                // Update session image if changed
+                if ($profile_image) $_SESSION['profile_image'] = $profile_image;
+                
                 log_activity($student_id, 'PROFILE_UPDATE', 'Profile information updated');
                 $success = 'Profile updated successfully!';
             } else {
@@ -46,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     }
 }
 
-// Handle password change
+// Handle password change (Kept same as before)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
     if (!verify_csrf_token($_POST['csrf_token'])) {
         $errors[] = 'Invalid request';
@@ -55,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
         $new_password = $_POST['new_password'];
         $confirm_password = $_POST['confirm_password'];
         
-        // Get current password hash
         $stmt = $db->prepare("SELECT password_hash FROM users WHERE user_id = ?");
         $stmt->execute([$student_id]);
         $user = $stmt->fetch();
@@ -135,19 +171,34 @@ include '../includes/header.php';
     </div>
 
     <div class="row">
-        <!-- Profile Info -->
         <div class="col-lg-4 mb-4">
             <div class="card shadow-sm">
                 <div class="card-body text-center">
-                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" 
-                         style="width: 120px; height: 120px; font-size: 48px;">
-                        <?= strtoupper(substr($student['full_name'], 0, 1)) ?>
+                    
+                    <div class="position-relative d-inline-block mb-3">
+                        <?php if (!empty($student['profile_image'])): ?>
+                            <img src="../<?= htmlspecialchars($student['profile_image']) ?>" 
+                                 alt="Profile" 
+                                 class="rounded-circle border" 
+                                 style="width: 120px; height: 120px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                                 style="width: 120px; height: 120px; font-size: 48px;">
+                                <?= strtoupper(substr($student['full_name'], 0, 1)) ?>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <label for="profile_upload" class="position-absolute bottom-0 end-0 bg-white border rounded-circle p-2 shadow-sm" style="cursor: pointer;">
+                            <i class="bi bi-camera-fill text-primary"></i>
+                        </label>
                     </div>
+
                     <h4><?= htmlspecialchars($student['full_name']) ?></h4>
                     <p class="text-muted mb-1">@<?= htmlspecialchars($student['username']) ?></p>
                     <p class="text-muted">
-                        <i class="bi bi-building"></i> <?= htmlspecialchars($student['branch_name']) ?>
+                        <i class="bi bi-building"></i> <?= htmlspecialchars($student['branch_name'] ?? 'Main Branch') ?>
                     </p>
+                    
                     <div class="border-top pt-3 mt-3">
                         <div class="row text-center">
                             <div class="col-4">
@@ -191,9 +242,7 @@ include '../includes/header.php';
             </div>
         </div>
 
-        <!-- Profile Forms -->
         <div class="col-lg-8">
-            <!-- Update Profile -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
@@ -201,9 +250,11 @@ include '../includes/header.php';
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
                         
+                        <input type="file" name="profile_image" id="profile_upload" class="d-none" accept="image/png, image/jpeg">
+
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Username</label>
@@ -236,10 +287,16 @@ include '../includes/header.php';
                                 <?php foreach ($branches as $branch): ?>
                                 <option value="<?= $branch['branch_id'] ?>" 
                                         <?= $student['branch_id'] == $branch['branch_id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($branch['branch_name']) ?> - <?= htmlspecialchars($branch['location']) ?>
+                                    <?= htmlspecialchars($branch['branch_name']) ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Change Profile Photo</label>
+                            <input type="file" name="profile_image" class="form-control" accept="image/*">
+                            <small class="text-muted">Allowed: JPG, PNG. Max size: 2MB.</small>
                         </div>
                         
                         <button type="submit" name="update_profile" class="btn btn-primary">
@@ -249,7 +306,6 @@ include '../includes/header.php';
                 </div>
             </div>
 
-            <!-- Change Password -->
             <div class="card shadow-sm">
                 <div class="card-header bg-danger text-white">
                     <h5 class="mb-0">
