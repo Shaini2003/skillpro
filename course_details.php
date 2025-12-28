@@ -52,15 +52,15 @@ include 'includes/header.php';
         <div class="col-lg-8">
             <h1 class="mb-3"><?= htmlspecialchars($course['course_name']) ?></h1>
             <div class="mb-4">
-                <span class="badge bg-primary me-2"><?= htmlspecialchars($course['category_name']) ?></span>
+                <span class="badge bg-primary me-2"><?= htmlspecialchars($course['category_name'] ?? 'General') ?></span>
                 <span class="badge bg-info me-2"><?= ucfirst($course['mode']) ?></span>
-                <span class="text-muted"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($course['branch_name']) ?></span>
+                <span class="text-muted"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($course['branch_name'] ?? 'Main Campus') ?></span>
             </div>
 
-            <img src="assets/images/course-placeholder.jpg" class="img-fluid rounded mb-4 w-100" alt="Course Image" style="height: 300px; object-fit: cover; background-color: #eee;">
+            <img src="assets/images/images.jpeg" class="img-fluid rounded mb-4 w-100" alt="Course Image" style="height: 300px; object-fit: cover; background-color: #eee;">
 
             <h3>About this Course</h3>
-            <p class="lead"><?= nl2br(htmlspecialchars($course['description'])) ?></p>
+            <p class="lead"><?= nl2br(htmlspecialchars($course['description'] ?? 'No description available.')) ?></p>
 
             <h4 class="mt-4">Class Schedule</h4>
             <?php if ($schedules): ?>
@@ -78,7 +78,7 @@ include 'includes/header.php';
                         <tr>
                             <td><?= $sch['day_of_week'] ?></td>
                             <td><?= date('g:i A', strtotime($sch['start_time'])) ?> - <?= date('g:i A', strtotime($sch['end_time'])) ?></td>
-                            <td><?= htmlspecialchars($sch['room_number']) ?></td>
+                            <td><?= htmlspecialchars($sch['room_number'] ?? 'TBA') ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -95,10 +95,24 @@ include 'includes/header.php';
                     <h3 class="text-primary fw-bold mb-3">Rs. <?= number_format($course['fee'], 2) ?></h3>
                     
                     <ul class="list-unstyled mb-4">
-                        <li class="mb-2"><i class="bi bi-clock me-2 text-muted"></i> <strong>Duration:</strong> <?= htmlspecialchars($course['duration']) ?></li>
-                        <li class="mb-2"><i class="bi bi-person me-2 text-muted"></i> <strong>Instructor:</strong> <?= htmlspecialchars($course['instructor_name']) ?></li>
-                        <li class="mb-2"><i class="bi bi-calendar-event me-2 text-muted"></i> <strong>Starts:</strong> <?= format_date($course['start_date']) ?></li>
-                        <li class="mb-2"><i class="bi bi-people me-2 text-muted"></i> <strong>Max Seats:</strong> <?= $course['max_students'] ?></li>
+                        <li class="mb-2">
+                            <i class="bi bi-clock me-2 text-muted"></i> 
+                            <strong>Duration:</strong> <?= htmlspecialchars($course['duration'] ?? 'N/A') ?>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-person me-2 text-muted"></i> 
+                            <strong>Instructor:</strong> 
+                            <?= htmlspecialchars($course['instructor_name'] ?? 'Not Assigned') ?>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-calendar-event me-2 text-muted"></i> 
+                            <strong>Starts:</strong> 
+                            <?= isset($course['start_date']) ? format_date($course['start_date']) : 'TBA' ?>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-people me-2 text-muted"></i> 
+                            <strong>Max Seats:</strong> <?= $course['max_students'] ?? 'Unlimited' ?>
+                        </li>
                     </ul>
 
                     <?php if ($is_enrolled): ?>

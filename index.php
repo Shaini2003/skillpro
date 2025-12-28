@@ -57,7 +57,7 @@ include 'includes/header.php';
                 </div>
             </div>
             <div class="col-lg-6 d-none d-lg-block">
-                <img src="assets/images/hero-image.svg" alt="Education" class="img-fluid">
+                <img src="assets/images/Educational-Institutions.jpg" alt="Education" class="img-fluid">
             </div>
         </div>
     </div>
