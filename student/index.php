@@ -60,7 +60,6 @@ include '../includes/header.php';
             <div class="card-body p-4">
                 <div class="row align-items-center">
 
-                    <!-- Left -->
                     <div class="col-md-8">
                         <h3 class="mb-2 text-white fw-bold">
                             Welcome back, <?= htmlspecialchars($student['full_name']) ?> 👋
@@ -72,12 +71,15 @@ include '../includes/header.php';
                         </p>
                     </div>
 
-                    <!-- Right -->
                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <small class="text-white-50">Member since</small>
-                        <h6 class="mb-0 text-white fw-semibold">
+                        <small class="text-white-50 d-block mb-1">Member since</small>
+                        <h6 class="mb-3 text-white fw-semibold">
                             <?= date('F Y', strtotime($student['created_at'])) ?>
                         </h6>
+                        
+                        <a href="profile.php" class="btn btn-light text-primary fw-bold btn-sm shadow-sm px-3 rounded-pill">
+                            <i class="bi bi-person-circle me-1"></i> View My Profile
+                        </a>
                     </div>
 
                 </div>
